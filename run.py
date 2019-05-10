@@ -1,4 +1,4 @@
-from flask import Flask, request,render_template
+from flask import Flask, render_template, request, session, g
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -13,11 +13,15 @@ app.config.update(
 
 db = SQLAlchemy(app)
 
+@app.before_request
+def some_function():
+    g.string = '<br> This code ran befor any request'
+
 #BASIC ROUTE
 @app.route('/index')
 @app.route('/')
 def hello_flask():
-    return  'Hello flask'
+    return  'Hello flask<br>'+ g.string
 
 @app.route('/new/')
 def query_strings(greeting='hello'):
@@ -85,6 +89,12 @@ def jinja_macros():
                  'john wick 2': 02.52,
                  'spiderman - homecoming': 1.48}
     return render_template('using_macros.html', movies=movies_dict)
+
+@app.route('/session')
+def session_data():
+    if 'name' not in session:
+        session['name'] = 'harry'
+    return render_template('session.html', name=session['name'], session=session)
 
 class Publication(db.Model):
     __tablename__ = 'publication'
